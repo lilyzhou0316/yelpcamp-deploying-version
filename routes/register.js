@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var User = require("../models/user");
+var CampGround = require("../models/campGround");
 var passport = require("passport");
 
 //home route
@@ -18,7 +19,11 @@ router.get("/register",function(req,res){
 
 //handle sign up logic
 router.post("/register",function(req,res){
-	var newUser = new User({username:req.body.username});
+	var newUser = new User({
+		username:req.body.username, 
+		avatar:req.body.avatar, 
+		email:req.body.email
+	});
 	User.register(newUser,req.body.password,function(err,returnUser){
 		if(err){
 			req.flash("error",err.message);
@@ -51,6 +56,27 @@ router.get("/logout", function(req,res){
 	req.logout();
 	req.flash("success","logged you out!");//it will show on the campgrouds page
 	res.redirect("campgrounds");
+});
+
+
+//USER PROFILE
+router.get("/users/:id",function(req,res){
+	
+	User.findById(req.params.id,function(err,foundUser){
+		if(err){
+			req.flash("error","User not found!");
+			res.redirect("back");
+		}else{
+			CampGround.find().where("author.id").equals(foundUser._id).exec(function(err,foundCamps){
+				if(err){
+					req.flash("error","campground not found!");
+					res.redirect("back");
+				}else{
+					res.render("users/show",{user:foundUser,campgrounds:foundCamps});
+				}
+			});
+		}
+	});
 });
 
 
