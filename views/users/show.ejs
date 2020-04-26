@@ -3,26 +3,28 @@
 	<h1>
 		<%= user.username %>
 	</h1>
-	<div class="thumbnail">
-		<img src="<%= user.avatar %>" alt="usr profile image">
-		<div class="caption">
-			<a href="mailto:<%= user.email %>"><%= user.email %></a>
+	<div class="col-md-4">
+		<div class="thumbnail">
+			<img src="<%= user.avatar %>" alt="usr profile image">
+			<div class="caption">
+				<a href="mailto:<%= user.email %>"><%= user.email %></a>
+			</div>
 		</div>
 	</div>
-	
-	
-	<h3>
-		<%= user.username %>'s campgrounds:
-	</h3>
-	<ul class="list-group list-group-flush">
-		<% campgrounds.forEach(function(campground){ %>
-		<li class="list-group-item">
-			<h4 class="mb-1"><a href="/campgrounds/<%= campground._id %>"><%= campground.name %></a></h4>
-			<small  class="pull-right"><%= moment(campground.createdAt).fromNow() %></small>
-		</li>
-		<% }); %>
-	</ul>
-	</div>	
+	<div class="col-md-4">
+		<h3>
+			<%= user.username %>'s campgrounds:
+		</h3>
+		<ul class="list-group list-group-flush">
+			<% campgrounds.forEach(function(campground){ %>
+			<li class="list-group-item">
+				<h4 class="mb-1"><a href="/campgrounds/<%= campground._id %>"><%= campground.name %></a></h4>
+				<small  class="pull-right"><%= moment(campground.createdAt).fromNow() %></small>
+			</li>
+			<% }); %>
+		</ul>
+	</div>
+
 </div>
 
 	
