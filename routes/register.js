@@ -3,7 +3,9 @@ var router = express.Router();
 var User = require("../models/user");
 var CampGround = require("../models/campGround");
 var passport = require("passport");
-
+var async = require("async");
+var nodemailer = require("nodemailer");
+var crypto = require("crypto");
 //home route
 //put this route here just because it has no common with other routes
 router.get("/",function(req,res){
@@ -79,5 +81,137 @@ router.get("/users/:id",function(req,res){
 	});
 });
 
+
+//reset password
+//forgot password page
+router.get('/forgot', function(req, res) {
+  res.render('/forgot');
+});
+
+
+router.post('/forgot', function(req, res, next) {
+  async.waterfall([
+    function(done) {
+      crypto.randomBytes(20, function(err, buf) {
+        var token = buf.toString('hex');//this gives users a link conbined with hexi token in the email
+        done(err, token);
+      });
+    },
+    function(token, done) {
+      User.findOne({ email: req.body.email }, function(err, user) {//find an user by his/her email address
+        if (!user) {//if no user return 
+          req.flash('error', 'No account with that email address exists.');
+          return res.redirect('/forgot');
+        }
+		//if there is an user according to the email address
+        user.resetPasswordToken = token;//reset password token
+        user.resetPasswordExpires = Date.now() + 3600000; // reset password expire time for 1 hour from now on
+
+        user.save(function(err) {//save the user info
+          done(err, token, user);
+        });
+      });
+    },
+    function(token, user, done) {
+      var smtpTransport = nodemailer.createTransport({//nodemailer is the package that allows us to send email to users
+        service: 'Gmail', //the service to send email to users
+        auth: {
+          user: 'lilyzhou0316@gmail.com',
+          pass: process.env.GMAILPW//set by export GMAILPW=..... then need to set gmail account's less secure app access to on
+        }
+      });
+      var mailOptions = {//there is the email content which will be sent to users
+        to: user.email,
+        from: 'lilyzhou0316@gmail.com',
+        subject: 'Node.js Password Reset',
+        text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+          'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+          'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+          'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+      };
+      smtpTransport.sendMail(mailOptions, function(err) {//send the mail
+        console.log('mail sent');//developers will see
+        req.flash('success', 'An e-mail has been sent to ' + user.email + ' with further instructions.');//alert users
+        done(err, 'done');
+      });
+    }
+  ], function(err) {
+    if (err) return next(err);
+    res.redirect("/login");//return back to login page
+  });
+});
+
+//reset page 
+router.get('/reset/:token', function(req, res) {//to handle the token
+  User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, //to check the token is the same with before and the time is not expired
+	function(err, user) {
+    if (!user) {
+      req.flash('error', 'Password reset token is invalid or has expired.');
+      return res.redirect("/forgot");
+    }
+	  //if the token is correct and do not expire, show reset page
+    res.render('/reset', {token: req.params.token});
+  });
+});
+
+router.post('/reset/:token', function(req, res) {
+  async.waterfall([ //make the call by functions' sequence
+    function(done) {
+      User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, //to check the token is the same with before
+				   function(err, user) {
+        if (!user) {
+          req.flash('error', 'Password reset token is invalid or has expired.');
+          return res.redirect('back');
+        }
+		  //if token is correct
+        if(req.body.password === req.body.confirm) {//to check the first password is the same with confirm password
+          user.setPassword(req.body.password, function(err) {
+            user.resetPasswordToken = undefined;//no longer needed
+            user.resetPasswordExpires = undefined;//no longer needed
+
+            user.save(function(err) {//save the user's info back to the database
+              req.logIn(user, function(err) {//log user in
+                done(err, user);
+              });
+            });
+          })
+        } else {
+            req.flash("error", "Passwords do not match.");//if the first password is not the same with confirm password
+            return res.redirect('back');
+        }
+      });
+    },
+    function(user, done) {//send a comfirm email to notice users
+      var smtpTransport = nodemailer.createTransport({
+        service: 'Gmail', 
+        auth: {
+          user: 'lilyzhou0316@gmail.com',
+          pass: process.env.GMAILPW
+        }
+      });
+      var mailOptions = {
+        to: user.email,
+        from: 'lilyzhou0316@mail.com',
+        subject: 'Your password has been changed',
+        text: 'Hello,\n\n' +
+          'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+      };
+      smtpTransport.sendMail(mailOptions, function(err) {
+		 if(err){
+		  req.flash("error","email is not sent successfully!");
+		  return res.redirect("back")
+	  } 
+        req.flash('success', 'Success! Your password has been changed.');
+        done(err);
+      });
+    }
+  ], function(err) {
+	  if(err){
+		  req.flash("error","something went wrong!");
+		  return res.redirect("back")
+	  }
+    res.redirect('/campgrounds');
+  });
+});
 
 module.exports = router;
