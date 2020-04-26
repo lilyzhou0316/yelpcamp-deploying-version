@@ -55,7 +55,7 @@ router.post("/",middleware.isLoggedIn,function(req,res){
     var lat = data[0].latitude;
     var lng = data[0].longitude;
     var location = data[0].formattedAddress;
-    var newCampground = {name: name, image: image,price:price,description: desc, author:author, location: location, lat: lat, lng: lng};
+    var newCampground = {name: name, image: image,price:price,description: description, author:author, location: location, lat: lat, lng: lng};
 	
 	// campgroundsVar.push(newCampground);
 	
