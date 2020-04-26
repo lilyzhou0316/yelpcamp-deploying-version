@@ -85,7 +85,7 @@ router.get("/users/:id",function(req,res){
 //reset password
 //forgot password page
 router.get('/forgot', function(req, res) {
-  res.render('/forgot');
+  res.render('forgot');
 });
 
 
@@ -150,7 +150,7 @@ router.get('/reset/:token', function(req, res) {//to handle the token
       return res.redirect("/forgot");
     }
 	  //if the token is correct and do not expire, show reset page
-    res.render('/reset', {token: req.params.token});
+    res.render('reset', {token: req.params.token});
   });
 });
 
