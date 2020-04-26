@@ -6,6 +6,7 @@ var passport = require("passport");
 var async = require("async");
 var nodemailer = require("nodemailer");
 var crypto = require("crypto");
+
 //home route
 //put this route here just because it has no common with other routes
 router.get("/",function(req,res){
@@ -130,6 +131,10 @@ router.post('/forgot', function(req, res, next) {
           'If you did not request this, please ignore this email and your password will remain unchanged.\n'
       };
       smtpTransport.sendMail(mailOptions, function(err) {//send the mail
+		  if(err){
+		  req.flash("error",err.message);
+		  return res.redirect("/login")
+	     } 
         console.log('mail sent');//developers will see
         req.flash('success', 'An e-mail has been sent to ' + user.email + ' with further instructions.');//alert users
         done(err, 'done');
