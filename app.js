@@ -10,6 +10,9 @@ var CampGround = require("./models/campGround");
 var Comment = require("./models/comment");
 var User = require("./models/user");
 var seedDB = require("./seeds");
+var async = require("async");
+var nodemailer = require("nodemailer");
+var crypto = require("crypto");
 app.locals.moment = require('moment');
 //requiring routes
 var campgroundRouters = require("./routes/campgrounds");
