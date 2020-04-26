@@ -14,16 +14,14 @@
 	<h3>
 		<%= user.username %>'s campgrounds:
 	</h3>
-	<div class="list-group list-group-flush">
+	<ul class="list-group list-group-flush">
 		<% campgrounds.forEach(function(campground){ %>
-			<a href="#" class="list-group-item list-group-item-action">
-   				 <div class="d-flex w-100 justify-content-between">
-      				<h5 class="mb-1"> <a href="/campgrounds/<%= campground._id %>"><%= campground.name %></a></h5>
-     		 		<small><%= moment(campground.createdAt).fromNow() %></small>
-    			</div>
-  			</a>
+		<li class="list-group-item">
+			<h4 class="mb-1"><a href="/campgrounds/<%= campground._id %>"><%= campground.name %></a></h4>
+			<small  class="pull-right"><%= moment(campground.createdAt).fromNow() %></small>
+		</li>
 		<% }); %>
-  		
+	</ul>
 	</div>	
 </div>
 
