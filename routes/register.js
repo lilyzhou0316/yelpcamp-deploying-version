@@ -118,13 +118,13 @@ router.post('/forgot', function(req, res, next) {
 		host: 'smtp.gmail.com',
         service: 'Gmail', //the service to send email to users
         auth: {
-          user: 'lilyzhou0316@gmail.com',
+          user: 'lilyzhou13491087@gmail.com',
           pass: process.env.GMAILPW//set by export GMAILPW=..... then need to set gmail account's less secure app access to on
         }
       });
       var mailOptions = {//there is the email content which will be sent to users
         to: user.email,
-        from: 'lilyzhou0316@gmail.com',
+        from: 'lilyzhou13491087@gmail.com',
         subject: 'Node.js Password Reset',
         text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
           'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
@@ -191,13 +191,13 @@ router.post('/reset/:token', function(req, res) {
       var smtpTransport = nodemailer.createTransport({
         service: 'Gmail', 
         auth: {
-          user: 'lilyzhou0316@gmail.com',
+          user: 'lilyzhou13491087@gmail.com',
           pass: process.env.GMAILPW
         }
       });
       var mailOptions = {
         to: user.email,
-        from: 'lilyzhou0316@mail.com',
+        from: 'lilyzhou13491087@gmail.com',
         subject: 'Your password has been changed',
         text: 'Hello,\n\n' +
           'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
