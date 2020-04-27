@@ -115,6 +115,7 @@ router.post('/forgot', function(req, res, next) {
     },
     function(token, user, done) {
       var smtpTransport = nodemailer.createTransport({//nodemailer is the package that allows us to send email to users
+		host: 'smtp.gmail.com',
         service: 'Gmail', //the service to send email to users
         auth: {
           user: 'lilyzhou0316@gmail.com',
