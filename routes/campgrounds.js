@@ -17,15 +17,34 @@ var geocoder = NodeGeocoder(options);
 
 //INDEX route--to list all data
 router.get("/",function(req,res){
-	//console.log(req.user);
-	//get all campgrounds from db
-	CampGround.find({},function(err,allcamps){
-		if(err){
-			req.flash("error",err.message);
+	var noMatch = null;
+	if(req.query.search){
+		const regex = new RegExp(escapeRegex(req.query.search), 'gi');//escapeRegex is a function at the end of this file
+        // Get all campgrounds from DB
+        Campground.find({name: regex}, function(err, allCampgrounds){
+           if(err){
+               req.flash("error",err.message);
+			   res.redirect('back');
+           } else {
+              if(allCampgrounds.length < 1) {//if there is no campground matches the search words
+                  //noMatch = "No campgrounds match that query, please try again.";
+				  req.flash("error","No campgrounds match that query, please try again.");
+				  return res.redirect("back");
+              }
+              res.render("campgrounds/index",{campgrounds:allCampgrounds, noMatch: noMatch,currentUser:req.user});
+           }
+        });
 	}else{
-		res.render("campgrounds/index",{campgrounds:allcamps,currentUser:req.user});//,currentUser:req.user
-	  }
-	});
+		//get all campgrounds from db
+		CampGround.find({},function(err,allcamps){
+			if(err){
+				req.flash("error",err.message);
+				res.redirect('back');
+		}else{
+			res.render("campgrounds/index",{campgrounds:allcamps,currentUser:req.user});//,currentUser:req.user
+		  }
+		});
+	}
 });
 
 //NEW route--to show form to create a new data
@@ -139,5 +158,8 @@ router.delete("/:id",middleware.checkCampgroundOwnership,function(req,res){
 	});
 });
 
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
 
 module.exports = router;
