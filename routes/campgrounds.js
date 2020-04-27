@@ -29,7 +29,7 @@ router.get("/",function(req,res){
               if(allCampgrounds.length < 1) {//if there is no campground matches the search words
                   //noMatch = "No campgrounds match that query, please try again.";
 				  req.flash("error","No campgrounds match that query, please try again.");
-				  return res.redirect("back");
+				  return res.redirect("/campgrounds");
               }
               res.render("campgrounds/index",{campgrounds:allCampgrounds, noMatch: noMatch,currentUser:req.user});
            }
