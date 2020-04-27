@@ -21,7 +21,7 @@ router.get("/",function(req,res){
 	if(req.query.search){
 		const regex = new RegExp(escapeRegex(req.query.search), 'gi');//escapeRegex is a function at the end of this file
         // Get all campgrounds from DB
-        Campground.find({name: regex}, function(err, allCampgrounds){
+        CampGround.find({name: regex}, function(err, allCampgrounds){
            if(err){
                req.flash("error",err.message);
 			   res.redirect('back');
